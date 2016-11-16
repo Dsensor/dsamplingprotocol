@@ -97,6 +97,7 @@ console.log('startDHT FUNCTION ClassS')
 KAD.prototype.seedSingle = function(seedIn) {
 console.log('seed single');
 console.log(seedIn);
+  var localthis = this;
   var hashkey = crypto.createHash('md5').update(seedIn[2]).digest('hex');
 
   var seed = {
@@ -107,32 +108,47 @@ console.log(seed);
   var localthis = this;
   this.dht.connect(seed, function(err) {
 console.log('begine seed connection');
-  var key = hashkey;
-  var value = seedIn[2];//seedIn[2];
-  var info = '';
-
-
-    localthis.dht.put(key, value, function() {
-      localthis.dht.get(key, function(err, info) {
-console.log('SEED successfully put and get an item in the dht');
-console.log(info);
-      });
-    });
+    var key = hashkey;
+    var message = seedIn[2];
+    localthis.putMessage(key, message);
 
   });
 
 };
 
+
 /**
-*  Read a SINGLE message sent by ID
-* @method readMessage
+*  Make a put call ie send a message (to network)
+* @method putMessage
 *
 */
-KAD.prototype.readMessage = function(addressIn, portIn) {
-console.log('read message');
+KAD.prototype.putMessage = function(keyID, message) {
+console.log('put message');
 
-      var key = '0222';
-      dht.get(key, function(err, info) {
+  var keymid = keyID;
+  if(keyID.length == 0)
+  {
+      var hashkey = crypto.createHash('md5').update(message).digest('hex');
+      keymid = hashkey;
+  }
+
+  this.dht.put(keymid, message, function() {
+console.log('sent message to peers');
+    });
+
+};
+
+/**
+*  Read a SINGLE message sent by ID
+* @method getMessage
+*
+*/
+KAD.prototype.getMessage = function(keyID) {
+console.log('get read message');
+
+      var key = keyID;
+      var info = '';
+      this.dht.get(key, function(err, info) {
 console.log('successfully read message');
 console.log(info);
       });

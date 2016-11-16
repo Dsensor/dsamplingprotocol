@@ -72,28 +72,33 @@ console.log(answers);
     }
     else if(answers.incommand == 'dmap') {
       // make ethereum smart contract
-      console.log('smart contract Dmaps started');
+console.log('smart contract Dmaps started');
       mockdht();
       ask();
 
     }
     else if(answers.incommand == 'calldmap') {
       // make ethereum smart contract
-      console.log('smart contract Dmaps called');
+console.log('smart contract Dmaps called');
       mockcallDmap();
       ask();
 
     }
     else if(answers.incommand == 'read') {
       // read existing messages
-      console.log('read message called');
+console.log('read message called');
       readmessage();
-      ask();
+
+    }
+    else if(answers.incommand == 'sendmessage') {
+      // send a new messages
+console.log('send a new message to network');
+      sendmessage();
 
     }
     else if(answers.incommand == 'ethereum') {
       // bring ethereum to life
-      console.log('bringing ethereum to life');
+console.log('bringing ethereum to life');
       var spawn = require('child_process').spawn;
 
       var cmd = spawn('geth', ['--networkid 12345', '--datadir ~/.ethereum_experiment', '--rpc', '--rpccorsdomain "*"', '--unlock=6f511fe12ba50e2f2d9de99a4d2bfc61332aebb0', 'console'
@@ -106,8 +111,13 @@ console.log(answers);
       ask();
 
     }
+    else if(answers.incommand != 'dht' || answers.incommand != 'seed' || answers.incommand != 'sendmessage' || answers.incommand != 'read' || answers.incommand != 'dmap' ||answers.incommand != 'calldmap' || answers.incommand != 'ethereum' || answers.incommand != 'exit' )
+    {
+console.log('Command not recognised, please use help');
+      ask();
+    }
     else {
-      console.log('Stopped:', output.join(', '));
+console.log('Stopped:', output.join(', '));
       process.exit(1);
     }
   });
@@ -186,5 +196,55 @@ console.log('start seed function');
   // call the original ask function
   console.log('original ask');
   ask();
+
+};
+
+function readmessage(messageID)  {
+console.log('readmessage function');
+  var questionmessage = [
+    {
+      type: 'input',
+      name: 'messageidin',
+      message: 'Enter message ID to read:'
+    }
+  ];
+  inquirer.prompt(questionmessage).then(function (answerread) {
+console.log('input read');
+    var output = [];
+    output.push(answerread.messageidin);
+console.log(output);
+    if(answerread.messageidin)
+    {
+      //  make call to call to read
+      liveDHT.getMessage(output[0]);
+
+    }
+    ask();
+  });
+
+};
+
+function sendmessage()  {
+console.log('send a message function');
+  var questionsend = [
+    {
+      type: 'input',
+      name: 'sendmid',
+      message: 'Enter message a short message:'
+    }
+  ];
+  inquirer.prompt(questionsend).then(function (answersend) {
+console.log('input message to send');
+    var output = [];
+    output.push(answersend.sendmid);
+console.log(output);
+    if(answersend.sendmid)
+    {
+      //  make call to call to read
+      liveDHT.putMessage('', output[0]);
+
+    }
+    ask();
+  });
 
 };
