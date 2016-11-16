@@ -1,26 +1,23 @@
 #!/usr/bin/env node
 'use strict';
+/**
+* Command Line Prompt for Dsampling Protocol
+*
+* deals peer to peer network, tcp, udp, kbuckets etc.
+* @class dDamplingCLI
+* @package    Dsensor opensource project
+* @copyright  Copyright (c) 2016 James Littlejohn
+* @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+* @version    $Id$
+*/
+
 var program = require('commander');
 var inquirer = require('inquirer');
 var mockptop = require('./mockdht.js');
-/**
- * @example kad/basiclocal
- */
-var kad = require('kad');
-var traverse = require('kad-traverse');
-var KadLocalStorage = require('kad-localstorage');
-var getIP = require('external-ip')();
-
-var ip = '';
-getIP(function (err, ip) {
-    if (err) {
-        // every service in the list has failed
-        throw err;
-    }
-
-console.log('extippp' + ip);
-
+var kadsetup = require('./kadsetup.js');
 var dht;
+
+var liveDHT = new kadsetup();
 
 program
     .version('0.0.1')
@@ -135,39 +132,11 @@ function mockcallDmap() {
 
 function startdht (addressIn, portIn) {
 console.log(addressIn);
-console.log(portIn);
-  var portnumber = parseInt(portIn);
-  var key;
-  var callback;
+console.log(portIn + ' dfdfd');
+console.log('before start class KAD');
   // Decorate your transport
-console.log('exterip pickedup == ' + ip + 'and port== ' + portnumber);
-// Create your contact
-var contact = kad.contacts.AddressPortContact({
-  address: ip,
-  port: portnumber
-});
-// Decorate your transport
-var NatTransport = traverse.TransportDecorator(kad.transports.UDP);
-
-// Create your transport with options
-var transportlive = new NatTransport(contact, {
-  traverse: {
-    upnp: { forward: 1901,
-                ttl: 0 },
-    stun: { address: 'stun.services.mozilla.com',
-                 port: 3478 },
-    turn: { address: 'turn.counterpointhackers.org',
-                 port: 3478 }
-  }
-});
-
-  dht = new kad.Node({
-    transport: transportlive,
-    storage: kad.storage.FS('datadir'),
-    validator: 'somethingtocheck'
-    //storage: new KadLocalStorage('label')
-  });
-
+//console.log('exterip pickedup == ' + addressIN + 'and port== ' + portIn);
+  liveDHT.startDHT(addressIn, portIn);
   ask();
 
 }
@@ -198,8 +167,8 @@ function seedask() {
     output.push(answerseed.addressseed);
     output.push(answerseed.portseed);
     output.push(answerseed.message);
-console.log('output muilt inquery cli');
-console.log(output);
+//console.log('output muilt inquery cli');
+//console.log(output);
     if(answerseed.portseed)
     {
       //  now make the seed call to DHT
@@ -211,39 +180,11 @@ console.log(output);
 };
 
 function seeddht(seedIn) {
-console.log('seed dht info');
-console.log(seedIn);
-console.log('seedsht function');
-    var sportnumber = parseInt(seedIn[1]);
-    var seed = {
-      address: seedIn[0],
-      port: sportnumber
-    };
-
-  dht.connect(seed, function(err) {
-    var key = '08764';
-    var value = seedIn[2];
-    var info = '';
-    dht.put(key, value, function() {
-      dht.get(key, function(err, info) {
-console.log('SEED successfully put and get an item in the dht');
-console.log(info);
-      });
-    });
-  });
+console.log('start seed function');
+//console.log(seedIn);
+  liveDHT.seedSingle(seedIn);
   // call the original ask function
   console.log('original ask');
   ask();
 
 };
-
-function readmessage () {
-      var key = '0222';
-      dht.get(key, function(err, info) {
-console.log('successfully read message');
-console.log(info);
-      });
-
-};
-
-});
